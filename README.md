@@ -38,4 +38,4 @@ If you would like to contribute to the PayTime plugin, please fork this reposito
 
 ## License
 
-The PayTime plugin is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+The PayTime plugin is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for more information.

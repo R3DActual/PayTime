@@ -30,7 +30,7 @@ The `config.yml` file in the `PayTime` folder contains all the configuration opt
 
 ## Support
 
-If you have any questions or issues with the PayTime plugin, please create a new issue on this GitHub repository or post in the [plugin thread](https://www.spigotmc.org/threads/paytime.107012/) on the SpigotMC forums.
+If you have any questions or issues with the PayTime plugin, please create a new issue on this GitHub repository or post in the [plugin thread](https://www.spigotmc.org/threads/paytime.107012/) on the SpigotMC forums or in our [Discord Server](https://discord.com/invite/sxCJHr34Yt).
 
 ## Contributing
 

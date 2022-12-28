@@ -1,0 +1,27 @@
+# Price to change time to day
+day-price: 100
+
+# Price to change time to night
+night-price: 100
+
+# Plugin prefix
+prefix: "&7[&6PayTime&7]&r"
+
+# Message to broadcast to the server when a player changes the time
+broadcast_message: "&e%player%&r has paid to change the time to &e%time%."
+
+# Message to send to player when they do not have enough money to change the time
+not_enough_money: "You do not have enough money to change the time."
+
+# Message to send to player when they successfully change the time
+time_changed: "You have paid &a%price% &rto change the time to &e%time%."
+
+# Message to send to player when they try to change the time to a time that it already is
+time_already_day: "The time is already day."
+time_already_night: "The time is already night."
+
+# Message to send to player when they do not have permission to change the time
+invalid_permission: "%#f54242%You do not have permission to execute this command."
+
+# Message to send to player when they use the /paytime reload command
+config_reload: "&aConfig reloaded."

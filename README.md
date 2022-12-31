@@ -17,11 +17,11 @@ PayTime is a plugin for [SpigotMC](https://www.spigotmc.org/) that allows player
 3. Start or restart your server to complete the installation
 4. Configure the plugin by editing the `config.yml` file in the `PayTime` folder
 5. Restart the server or use the `/paytime reload` command to apply the changes
-6. Players can now use the `/time` command to change the time in their world
+6. Players can now use the `/paytime` command to change the time or weather in their world
 
 ## Commands and Permissions
 
-- `/time <day|night>` - Changes the time to day or night (permission: `paytime.<day|night>`)
+- `/time <day|night|storm|clear|price>` - Changes the weather or time (permission: `paytime.<day|night|storm|clear|price>`)
 - `/paytime reload` - Reloads the config.yml file (permission: `paytime.reload`)
 
 ## Configuration

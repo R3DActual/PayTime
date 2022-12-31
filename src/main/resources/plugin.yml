@@ -2,13 +2,13 @@ name: PayTime
 version: '${project.version}'
 main: me.twistedactual.paytime.Main
 api-version: 1.19
-description: A plugin that allows players to pay for day or night time.
+description: A plugin that allows players to pay for day or night time or even weather such as clear and storm.
 depend: [ Vault ]
 authors: [ TwistedActual ]
 commands:
   paytime:
     description: Change the time to day or night.
-    usage: /paytime <day|night>
+    usage: /paytime [day|night|storm|clear|price]
     children:
       day:
         description: Change the time to day.
@@ -18,6 +18,18 @@ commands:
         description: Change the time to night.
         usage: /paytime night
         permission: paytime.night
+      storm:
+        description: Change the weather to storm.
+        usage: /paytime storm
+        permission: paytime.storm
+      clear:
+        description: Change the weather to clear.
+        usage: /paytime clear
+        permission: paytime.clear
+      price:
+        description: Get the current price for day and night.
+        usage: /paytime price
+        permission: paytime.price
       reload:
         description: Reload the plugins config.
         usage: /paytime reload

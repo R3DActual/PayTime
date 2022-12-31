@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,29 +19,46 @@ public final class Main extends JavaPlugin implements CommandExecutor {
     private Economy economy;
     private double dayPrice;
     private double nightPrice;
+    private double stormPrice;
+    private double clearPrice;
+    private boolean broadcast;
     private String prefix;
     private String notEnoughMoneyMessage;
     private String timeChangedMessage;
+    private String weatherChangedMessage;
     private String invalidPermissionMessage;
     private String configReload;
-    private String broadcastMessage;
+    private String broadcastTimeMessage;
+    private String broadcastWeatherMessage;
+    private String currencySymbol;
     private String timeAlreadyDay;
     private String timeAlreadyNight;
+    private String weatherAlreadyStormy;
+    private String weatherAlreadyClear;
 
     @Override
     public void onEnable() {
         // Load config.yml file and get necessary values
+
         saveDefaultConfig();
+        broadcast = getConfig().getBoolean("broadcast");
         prefix = getConfig().getString("prefix");
         dayPrice = getConfig().getDouble("day_price");
         nightPrice = getConfig().getDouble("night_price");
+        stormPrice = getConfig().getDouble("storm_price");
+        clearPrice = getConfig().getDouble("clear_price");
+        currencySymbol = getConfig().getString("currency_symbol");
         notEnoughMoneyMessage = getConfig().getString("not_enough_money");
         timeChangedMessage = getConfig().getString("time_changed");
+        weatherChangedMessage = getConfig().getString("weather_changed");
         invalidPermissionMessage = getConfig().getString("invalid_permission");
         configReload = getConfig().getString("config_reload");
-        broadcastMessage = getConfig().getString("broadcast_message");
+        broadcastTimeMessage = getConfig().getString("broadcast_time_message");
+        broadcastWeatherMessage = getConfig().getString("broadcast_weather_message");
         timeAlreadyDay = getConfig().getString("time_already_day");
         timeAlreadyNight = getConfig().getString("time_already_night");
+        weatherAlreadyStormy = getConfig().getString("weather_already_stormy");
+        weatherAlreadyClear = getConfig().getString("weather_already_clear");
 
         // Initialize Vault economy support
         if (!setupEconomy()) {
@@ -74,16 +92,24 @@ public final class Main extends JavaPlugin implements CommandExecutor {
 
     private void reloadCon() {
         reloadConfig();
+        broadcast = getConfig().getBoolean("broadcast");
         prefix = getConfig().getString("prefix");
         dayPrice = getConfig().getDouble("day_price");
         nightPrice = getConfig().getDouble("night_price");
+        stormPrice = getConfig().getDouble("storm_price");
+        clearPrice = getConfig().getDouble("clear_price");
+        currencySymbol = getConfig().getString("currency_symbol");
         notEnoughMoneyMessage = getConfig().getString("not_enough_money");
         timeChangedMessage = getConfig().getString("time_changed");
+        weatherChangedMessage = getConfig().getString("weather_changed");
         invalidPermissionMessage = getConfig().getString("invalid_permission");
         configReload = getConfig().getString("config_reload");
-        broadcastMessage = getConfig().getString("broadcast_message");
+        broadcastTimeMessage = getConfig().getString("broadcast_time_message");
+        broadcastWeatherMessage = getConfig().getString("broadcast_weather_message");
         timeAlreadyDay = getConfig().getString("time_already_day");
         timeAlreadyNight = getConfig().getString("time_already_night");
+        weatherAlreadyStormy = getConfig().getString("weather_already_stormy");
+        weatherAlreadyClear = getConfig().getString("weather_already_clear");
     }
 
     @Override
@@ -98,11 +124,14 @@ public final class Main extends JavaPlugin implements CommandExecutor {
 
         if (args.length != 1) {
             // Incorrect number of arguments
-            player.sendMessage(translate(prefix + " " + "Usage: /paytime <day | night>"));
+            player.sendMessage(translate(prefix + " " + "Usage: /paytime <day | night | storm | clear | price>"));
             return true;
         }
 
         long currentTime = player.getWorld().getTime();
+        boolean isWeatherClear = player.getWorld().isClearWeather();
+        boolean isThundering = player.getWorld().isThundering();
+        boolean isStorming = player.getWorld().hasStorm();
         if (args[0].equalsIgnoreCase("day")) {
             if (!sender.hasPermission("paytime.day")) {
                 // Player does not have permission to execute command
@@ -120,11 +149,14 @@ public final class Main extends JavaPlugin implements CommandExecutor {
             }
             player.getWorld().setTime(0);
             economy.withdrawPlayer(player, dayPrice);
-            String message = timeChangedMessage.replace("%price%", economy.format(dayPrice)).replace("%time%", "Day");
+            String message = timeChangedMessage.replace("%price%", currencySymbol + formatDouble(dayPrice)).replace("%time%", "Day");
             player.sendMessage(translate(prefix + " " + message));
+
             // Broadcast message to server
-            String broadcastedMessage = broadcastMessage.replace("%player%", player.getName()).replace("%time%", "Day");
-            Bukkit.broadcastMessage(translate(prefix + " " + broadcastedMessage));
+            if(broadcast){
+                String broadcastedMessage = broadcastTimeMessage.replace("%player%", player.getName()).replace("%time%", "Day");
+                Bukkit.broadcastMessage(translate(prefix + " " + broadcastedMessage));
+            }
         } else if (args[0].equalsIgnoreCase("night")) {
             if (!sender.hasPermission("paytime.night")) {
                 // Player does not have permission to execute command
@@ -142,11 +174,80 @@ public final class Main extends JavaPlugin implements CommandExecutor {
             }
             player.getWorld().setTime(14000);
             economy.withdrawPlayer(player, nightPrice);
-            String message = timeChangedMessage.replace("%price%", economy.format(nightPrice)).replace("%time%", "Night");
+            String message = timeChangedMessage.replace("%price%", currencySymbol + formatDouble(nightPrice)).replace("%time%", "Night");
             player.sendMessage(translate(prefix + " " + message));
+
             // Broadcast message to server
-            String broadcastedMessage = broadcastMessage.replace("%player%", player.getName()).replace("%time%", "Night");
-            Bukkit.broadcastMessage(translate(prefix + " " + broadcastedMessage));
+            if(broadcast){
+                String broadcastedMessage = broadcastTimeMessage.replace("%player%", player.getName()).replace("%time%", "Night");
+                Bukkit.broadcastMessage(translate(prefix + " " + broadcastedMessage));
+            }
+        } else if (args[0].equalsIgnoreCase("storm")) {
+            if (!sender.hasPermission("paytime.storm")) {
+                // Player does not have permission to execute command
+                sender.sendMessage(translate(prefix + " " + invalidPermissionMessage));
+                return true;
+            }
+
+            if(isStorming == true){
+                player.sendMessage(translate(prefix + " " + weatherAlreadyStormy));
+                return true;
+            }
+
+            if (economy.getBalance(player) < stormPrice) {
+                player.sendMessage(translate(prefix + " " + notEnoughMoneyMessage));
+                return true;
+            }
+
+            player.getWorld().setStorm(true);
+            player.getWorld().setThundering(true);
+            economy.withdrawPlayer(player, stormPrice);
+            String message = weatherChangedMessage.replace("%price%", currencySymbol + formatDouble(stormPrice)).replace("%weather%", "Storm");
+            player.sendMessage(translate(prefix + " " + message));
+
+            // Broadcast message to server
+            if(broadcast){
+                String broadcastedMessage = broadcastWeatherMessage.replace("%player%", player.getName()).replace("%weather%", "Storm");
+                Bukkit.broadcastMessage(translate(prefix + " " + broadcastedMessage));
+            }
+        } else if (args[0].equalsIgnoreCase("clear")) {
+            if (!sender.hasPermission("paytime.clear")) {
+                // Player does not have permission to execute command
+                sender.sendMessage(translate(prefix + " " + invalidPermissionMessage));
+                return true;
+            }
+
+            if(!isStorming == true){
+                player.sendMessage(translate(prefix + " " + weatherAlreadyClear));
+                return true;
+            }
+
+            if (economy.getBalance(player) < clearPrice) {
+                player.sendMessage(translate(prefix + " " + notEnoughMoneyMessage));
+                return true;
+            }
+
+            player.getWorld().setStorm(false);
+            player.getWorld().setThundering(false);
+            economy.withdrawPlayer(player, clearPrice);
+            String message = weatherChangedMessage.replace("%price%", currencySymbol + formatDouble(clearPrice)).replace("%weather%", "Clear");
+            player.sendMessage(translate(prefix + " " + message));
+
+            // Broadcast message to server
+            if(broadcast){
+                String broadcastedMessage = broadcastWeatherMessage.replace("%player%", player.getName()).replace("%weather%", "Clear");
+                Bukkit.broadcastMessage(translate(prefix + " " + broadcastedMessage));
+            }
+        } else if (args[0].equalsIgnoreCase("price")) {
+            if (!sender.hasPermission("paytime.price")) {
+                // Player does not have permission to execute command
+                sender.sendMessage(translate(prefix + " " + invalidPermissionMessage));
+                return true;
+            }
+
+            String message = "Day: &a" + currencySymbol + formatDouble(dayPrice)+ " &rNight: &a" + currencySymbol + formatDouble(nightPrice);
+
+            player.sendMessage(translate(prefix + " " + message));
         } else if (args[0].equalsIgnoreCase("reload")) {
             if (!sender.hasPermission("paytime.reload")) {
                 // Player does not have permission to execute command
@@ -158,13 +259,12 @@ public final class Main extends JavaPlugin implements CommandExecutor {
             sender.sendMessage(translate(prefix + " " + configReload));
         } else {
             // Invalid argument
-            player.sendMessage(translate(prefix + " " + "Usage: /paytime <day | night>"));
+            player.sendMessage(translate(prefix + " " + "Usage: /paytime <day | night | storm | clear | price>"));
             return true;
         }
 
         return true;
     }
-
 
     public static final char COLOR_CHAR = '\u00A7';
 
@@ -187,5 +287,19 @@ public final class Main extends JavaPlugin implements CommandExecutor {
             );
         }
         return matcher.appendTail(buffer).toString();
+    }
+
+    public static String formatDouble(double value) {
+        if(value >= 1000000000000L){
+            return String.format("%.1f", value / 1000000000000L) + "T";
+        }else if (value >= 1000000000) {
+            return String.format("%.1f", value / 1000000000) + "B";
+        } else if (value >= 1000000) {
+            return String.format("%.2f", value / 1000000) + "M";
+        } else if (value >= 1000) {
+            return String.format("%.1f", value / 1000) + "K";
+        } else {
+            return String.format("%.1f", value);
+        }
     }
 }

@@ -1,26 +1,36 @@
-# Price to change time to day
-day-price: 100
+# Price to change time/weather to day, night, storm, or clear
+day_price: 10000
+night_price: 1000
+storm_price: 10000
+clear_price: 1000
 
-# Price to change time to night
-night-price: 100
+# Enable Broadcast message when player pays for day, night, storm, or clear
+broadcast: true
 
 # Plugin prefix
 prefix: "&7[&6PayTime&7]&r"
 
-# Message to broadcast to the server when a player changes the time
-broadcast_message: "&e%player%&r has paid to change the time to &e%time%."
+# Message to broadcast to the server when a player changes the time or weather
+broadcast_time_message: "&e%player%&r has paid to change the time to &e%time%."
+broadcast_weather_message: "&e%player%&r has paid to change the weather to &e%weather%."
 
-# Message to send to player when they do not have enough money to change the time
+# Currency Symbol (Leave blank for no symbol)
+currency_symbol: "$"
+
+# Message to send to player when they do not have enough money to change the time or weather
 not_enough_money: "You do not have enough money to change the time."
 
-# Message to send to player when they successfully change the time
+# Message to send to player when they successfully change the time or weather
 time_changed: "You have paid &a%price% &rto change the time to &e%time%."
+weather_changed: "You have paid &a%price% &rto change the weather to &e%weather%."
 
-# Message to send to player when they try to change the time to a time that it already is
+# Message to send to player when they try to change the time/weather to a time/weather that it already is
 time_already_day: "The time is already day."
 time_already_night: "The time is already night."
+weather_already_clear: "The weather is already clear."
+weather_already_stormy: "The weather is already stormy."
 
-# Message to send to player when they do not have permission to change the time
+# Message to send to player when they do not have permission to change the time or weather
 invalid_permission: "%#f54242%You do not have permission to execute this command."
 
 # Message to send to player when they use the /paytime reload command

@@ -4,7 +4,7 @@ PayTime is a plugin for [SpigotMC](https://www.spigotmc.org/) that allows player
 
 ## Features
 
-- Players can pay to change the time to day or night using in-game currency
+- Players can pay to change the time to day or night or weather to storm or clear using in-game currency
 - Customizable prices and messages in the config.yml file
 - Supports both regular Minecraft color codes and hex color codes in messages
 - Command and permission system for controlling access to the plugin

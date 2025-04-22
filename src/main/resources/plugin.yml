@@ -1,36 +1,34 @@
 name: PayTime
 version: '${project.version}'
 main: me.twistedactual.paytime.Main
-api-version: 1.19
-description: A plugin that allows players to pay for day or night time or even weather such as clear and storm.
-depend: [ Vault ]
-authors: [ TwistedActual ]
+api-version: '1.19'
+description: A plugin that allows players to change time and weather in exchange for in-game currency.
+author: TwistedActual
+website: https://github.com/TwistedActual/PayTime
+depend:
+  - Vault
 commands:
   paytime:
-    description: Change the time to day or night.
-    usage: /paytime [day|night|storm|clear|price]
-    children:
-      day:
-        description: Change the time to day.
-        usage: /paytime day
-        permission: paytime.day
-      night:
-        description: Change the time to night.
-        usage: /paytime night
-        permission: paytime.night
-      storm:
-        description: Change the weather to storm.
-        usage: /paytime storm
-        permission: paytime.storm
-      clear:
-        description: Change the weather to clear.
-        usage: /paytime clear
-        permission: paytime.clear
-      price:
-        description: Get the current price for day and night.
-        usage: /paytime price
-        permission: paytime.price
-      reload:
-        description: Reload the plugins config.
-        usage: /paytime reload
-        permission: paytime.reload
+    description: Main command for PayTime
+    usage: /paytime <day|night|storm|clear|price|reload|setprice|setduration|toggle>
+    aliases: [pt]
+
+permissions:
+  paytime.day:
+    description: Allows the player to change time to day
+    default: true
+  paytime.night:
+    description: Allows the player to change time to night
+    default: true
+  paytime.storm:
+    description: Allows the player to change weather to storm
+    default: true
+  paytime.clear:
+    description: Allows the player to change weather to clear
+    default: true
+  paytime.price:
+    description: Allows the player to view current prices
+    default: true
+  paytime.admin:
+    description: Gives access to all admin commands
+    default: op
